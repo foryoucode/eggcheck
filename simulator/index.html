@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conveyor Lab — контроль пустых пластиковых лотков</title>
+<style>
+:root{color-scheme:dark;--bg:#0a1014;--panel:#111a20;--panel2:#152129;--line:#27343b;--sub:#8798a1;--white:#ecf5f5;--accent:#7ee8c0;--teal:#3dd2a0;--bad:#ff9784}
+*{box-sizing:border-box}html,body{min-height:100%;margin:0}body{background:radial-gradient(circle at 15% 0%,#182d2f 0%,transparent 30%),radial-gradient(circle at 90% 15%,#13252d 0%,transparent 27%),var(--bg);color:var(--white);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:14px;line-height:1.45}
+button,input{font:inherit}button{cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}.container{max-width:1580px;margin:auto;padding:27px 32px 44px}
+nav{display:flex;justify-content:space-between;align-items:center;padding-bottom:27px;border-bottom:1px solid #26343a;margin-bottom:30px;gap:20px}.brand{display:flex;align-items:center;gap:13px;font-size:17px;font-weight:760;letter-spacing:-.035em}.brand-icon{width:40px;height:40px;background:#1a3230;border:1px solid #377a69;border-radius:12px;display:grid;grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(3,1fr);gap:3px;padding:8px;transform:rotate(-8deg)}.brand-icon i{border-radius:50%;background:#77dec0;box-shadow:inset 2px 2px 3px #c4fff2,0 1px 2px #143c34}.brand span{color:var(--accent)}.top-right{display:flex;align-items:center;gap:12px;color:#a3b6bd;font-size:12px;letter-spacing:.02em}.online{display:inline-flex;align-items:center;gap:8px;border:1px solid #2c564a;background:#173228;padding:8px 11px;border-radius:30px;color:#8df1c9;font-weight:700;font-size:11px;letter-spacing:.06em}.dot{display:inline-block;width:7px;height:7px;background:var(--accent);border-radius:50%;box-shadow:0 0 10px #82ffcf}
+h1{font-size:clamp(27px,3vw,42px);line-height:1.1;margin:9px 0 11px;letter-spacing:-.05em;font-weight:780}.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.17em;color:#83dec3;font-weight:800}.intro{max-width:760px;color:#9cabb4;margin:0 0 28px;font-size:15px;line-height:1.65}.dashboard{display:grid;grid-template-columns:minmax(0,1fr) 332px;gap:19px;align-items:start}.main-col,.controls{min-width:0}.camera-card,.panel{background:linear-gradient(140deg,rgba(20,33,39,.96),rgba(15,23,28,.98));border:1px solid var(--line);border-radius:17px;overflow:hidden;box-shadow:0 16px 55px #0003}.camera-top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 19px;border-bottom:1px solid var(--line)}.head-left{display:flex;align-items:center;gap:10px;font-weight:740;font-size:12px;letter-spacing:.035em}.cam-dot{width:9px;height:9px;border-radius:50%;background:#ff8977;box-shadow:0 0 0 4px #ff86771c;animation:breathe 1.9s infinite}@keyframes breathe{50%{opacity:.45}}.cam-meta{color:#8a9da7;font:11px ui-monospace,Consolas,monospace;letter-spacing:.035em}.camera-wrap{position:relative;overflow:hidden;background:#0c1518}.camera-wrap canvas{display:block;width:100%;aspect-ratio:16/9;height:auto}.camera-wrap #truth{position:absolute;inset:0;pointer-events:none}.camera-corner{position:absolute;width:22px;height:22px;border-color:#cceee0;opacity:.55;pointer-events:none}.tl{top:19px;left:19px;border-top:2px solid;border-left:2px solid}.tr{top:19px;right:19px;border-top:2px solid;border-right:2px solid}.bl{bottom:19px;left:19px;border-bottom:2px solid;border-left:2px solid}.br{bottom:19px;right:19px;border-bottom:2px solid;border-right:2px solid}.top-feed{position:absolute;top:24px;left:55px;font:600 10px ui-monospace,Consolas,monospace;letter-spacing:.08em;color:#c7e0dc;opacity:.75;pointer-events:none}.bottom-feed{position:absolute;bottom:23px;left:55px;color:#b3d1cc;font:10px ui-monospace,Consolas,monospace;opacity:.78;pointer-events:none}.camera-caption{display:flex;gap:14px;justify-content:space-between;align-items:center;padding:13px 18px;color:#9bacb4;font-size:12px;flex-wrap:wrap}.camera-caption strong{color:#a4e2d1;font-weight:650}.camera-caption .pill{display:inline-flex;align-items:center;gap:7px;padding:5px 9px;background:#16302b;border-radius:7px;color:#96e9ce;font-size:10px;letter-spacing:.08em;font-weight:800}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:13px}.stat{border:1px solid var(--line);background:linear-gradient(135deg,#142028,#10191f);border-radius:13px;padding:16px 17px}.stat-label{font-size:11px;color:#8f9fa9;margin-bottom:4px}.stat-value{font-size:26px;font-weight:770;line-height:1.2;font-variant-numeric:tabular-nums;letter-spacing:-.04em}.stat:nth-child(2) .stat-value{color:#99e5cc}.stat:nth-child(3) .stat-value{color:#f0a196}.stat-small{font-size:10px;color:#7e919c;margin-top:5px}
+.controls{display:flex;flex-direction:column;gap:13px}.panel{padding:20px}.panel h2{font-size:14px;margin:0 0 2px;letter-spacing:-.01em}.panel-desc{color:#8b9da6;font-size:12px;margin:0 0 18px;line-height:1.6}.setting{margin-bottom:18px}.setting:last-of-type{margin-bottom:15px}.setting-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px;font-size:12px;color:#cdd9df}.value{font:700 12px ui-monospace,Consolas,monospace;color:#a4efcf}input[type=range]{width:100%;appearance:none;-webkit-appearance:none;height:5px;background:linear-gradient(90deg,#3cae8f var(--fill,50%),#33434b var(--fill,50%));border-radius:6px;outline:none;margin:5px 0 3px;cursor:pointer}input[type=range]::-webkit-slider-thumb{appearance:none;width:17px;height:17px;border-radius:50%;background:#b1ffdf;border:3px solid #1a5546;box-shadow:0 0 0 2px #254c43}input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:#b1ffdf;border:3px solid #1a5546}.range-ends{display:flex;justify-content:space-between;color:#637983;font-size:10px}.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-top:1px solid #28363e;gap:10px}.toggle-row span{font-size:12px;font-weight:620}.toggle-row small{font-size:10px;display:block;color:#8598a2;font-weight:400;margin-top:2px}.switch{position:relative;width:39px;height:23px;flex:0 0 39px}.switch input{opacity:0;width:0;height:0}.track{position:absolute;inset:0;border-radius:15px;background:#34444b;transition:background .2s;cursor:pointer}.track:before{content:"";position:absolute;width:17px;height:17px;top:3px;left:3px;background:#d6e4e7;border-radius:50%;transition:transform .2s}.switch input:checked+.track{background:#278a6f}.switch input:checked+.track:before{transform:translateX(16px);background:#e9fff4}.button-row{display:flex;gap:9px;margin-top:10px}.btn{border:1px solid #3a5056;background:#203037;color:#e2f1ed;border-radius:9px;padding:11px 12px;font-size:12px;font-weight:670;display:inline-flex;gap:8px;align-items:center;justify-content:center;transition:background .15s,border-color .15s}.btn:hover:not(:disabled){background:#30464c;border-color:#659184}.btn-primary{background:#65d6ad;color:#0c2722;border-color:#65d6ad;font-weight:800}.btn-primary:hover:not(:disabled){background:#94e8c8;border-color:#94e8c8}.btn-wide{width:100%;margin-bottom:9px}.btn svg{width:15px;height:15px;flex:0 0 15px}.btn-grow{flex:1}.outline{background:transparent}.panel hr{border:0;border-top:1px solid #2d3b40;margin:15px 0}.mini-note{font-size:11px;color:#7f969f;line-height:1.65;margin:8px 0 0}.notice{color:#9dbead;background:#183027;border:1px solid #2b5e4b;padding:10px 11px;font-size:11px;line-height:1.6;border-radius:9px;margin-top:10px}.progress{display:none;background:#20373a;border-radius:8px;height:5px;margin-top:10px;overflow:hidden}.progress>div{height:100%;width:0%;background:#7ee8c0;transition:width .15s}.progress.active{display:block}.export-status{min-height:18px;font-size:11px;color:#a9cbbd;line-height:1.5;margin-top:5px}.defect-grid{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}.defect-chip{border:1px solid #344850;background:#1a2a30;color:#a8bcc3;padding:6px 9px;border-radius:6px;font-size:10px;letter-spacing:.01em}.defect-chip:nth-child(4n+2){border-color:#485047}.defect-chip:nth-child(5n+3){border-color:#55504b}.bottom-info{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-top:17px}.tip{display:flex;gap:12px;align-items:flex-start;background:#111d22;border:1px solid #28363d;border-radius:12px;padding:16px}.tip .ico{font-size:20px;line-height:1}.tip strong{display:block;font-size:12px;margin-bottom:5px}.tip p{font-size:11px;color:#90a1aa;margin:0;line-height:1.7}.footer{margin-top:26px;font-size:11px;color:#61777f;display:flex;justify-content:space-between;gap:16px;border-top:1px solid #213139;padding-top:18px}.foot-code{font-family:ui-monospace,Consolas,monospace}
+@media(max-width:1050px){.dashboard{grid-template-columns:1fr}.controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch}.controls .panel:last-child{grid-column:1/-1}}@media(max-width:700px){.container{padding:16px 14px 35px}nav{margin-bottom:23px;padding-bottom:18px}.top-right>span:not(.online){display:none}.intro{font-size:13px;margin-bottom:21px}.camera-top{padding:12px}.cam-meta{font-size:9px}.stats{gap:7px}.stat{padding:13px 10px}.stat-value{font-size:22px}.stat-small{font-size:9px}.controls{display:flex}.bottom-info{grid-template-columns:1fr}.camera-caption{font-size:11px}.footer{display:block}.footer>span{display:block;margin-bottom:6px}.top-feed,.bottom-feed{display:none}}
+</style>
+</head>
+<body>
+<div class="container">
+<nav>
+  <div class="brand"><div class="brand-icon" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div><div>CONVEYOR<span>.LAB</span></div></div>
+  <div class="top-right"><span>СИМУЛЯТОР КОМПЬЮТЕРНОГО ЗРЕНИЯ / V1.1</span><span class="online"><span class="dot"></span> SIMULATION ONLINE</span></div>
+</nav>
+<div class="eyebrow">Контроль качества формованных пластиковых лотков</div>
+<h1>Виртуальный конвейер пустых лотков</h1>
+<p class="intro">Пустые пластиковые лотки для яиц движутся под камерой. В одних лотках пластик отформован правильно, в других встречаются случайные дефекты. Яиц на конвейере нет: проверяется только качество лотков. Распознавания пока нет — только изображение для будущей модели.</p>
+<div class="dashboard">
+  <div class="main-col">
+    <section class="camera-card">
+      <div class="camera-top"><div class="head-left"><span class="cam-dot" id="camDot"></span> КАМЕРА 01 <span style="color:#6e858b">/</span> ВИД СВЕРХУ</div><div class="cam-meta">1600 × 900 &nbsp;·&nbsp; SYNTHETIC RGB</div></div>
+      <div class="camera-wrap">
+        <canvas id="camera" width="1600" height="900" aria-label="Анимированный конвейер с пластиковыми лотками для яиц"></canvas>
+        <canvas id="truth" width="1600" height="900" aria-hidden="true"></canvas>
+        <div class="camera-corner tl"></div><div class="camera-corner tr"></div><div class="camera-corner bl"></div><div class="camera-corner br"></div>
+        <div class="top-feed">LIVE FEED &nbsp;·&nbsp; 01</div><div class="bottom-feed" id="streamStatus">CAM-01 &nbsp;|&nbsp; TOP VIEW &nbsp;|&nbsp; NO ANNOTATIONS</div>
+      </div>
+      <div class="camera-caption"><span>Поток пикселей — <strong>без меток, рамок и ответов</strong></span><span class="pill"><span class="dot"></span> RAW VISION INPUT</span></div>
+    </section>
+    <section class="stats" aria-label="Статистика прошедших лотков">
+      <div class="stat"><div class="stat-label">Прошло проверочную линию</div><div class="stat-value" id="total">0</div><div class="stat-small">лотков за сеанс</div></div>
+      <div class="stat"><div class="stat-label">Без дефектов</div><div class="stat-value" id="good">0</div><div class="stat-small">внутренний эталон</div></div>
+      <div class="stat"><div class="stat-label">С дефектами</div><div class="stat-value" id="bad">0</div><div class="stat-small">внутренний эталон</div></div>
+    </section>
+    <div class="bottom-info">
+      <div class="tip"><span class="ico">🧪</span><div><strong>Слепое тестирование</strong><p>Будущая нейросеть получает только картинку. Настоящие ответы хранятся отдельно; переключатель эталона не меняет экспортируемые пиксели.</p></div></div>
+      <div class="tip"><span class="ico">📷</span><div><strong>Готово для экспериментов</strong><p>Сохраняй PNG живого кадра или набор отдельных пустых лотков. Всё работает локально и без подключения к интернету.</p></div></div>
+    </div>
+  </div>
+  <aside class="controls">
+    <section class="panel">
+      <h2>Управление линией</h2>
+      <p class="panel-desc">Все лотки пустые · меняется только качество пластика</p>
+      <div class="setting"><div class="setting-head"><label for="speed">Скорость ленты</label><span class="value" id="speedValue">1.0×</span></div><input id="speed" type="range" min="0.2" max="3" step="0.1" value="1"><div class="range-ends"><span>Медленно</span><span>Быстро</span></div></div>
+      <div class="setting"><div class="setting-head"><label for="chance">Вероятность брака</label><span class="value" id="chanceValue">55%</span></div><input id="chance" type="range" min="0" max="100" step="1" value="55"><div class="range-ends"><span>0% · всё качественное</span><span>100%</span></div></div>
+      <div class="setting"><div class="setting-head"><label for="severity">Выраженность дефектов</label><span class="value" id="severityValue">Средняя</span></div><input id="severity" type="range" min="1" max="3" step="1" value="2"><div class="range-ends"><span>Тонкие</span><span>Заметные</span></div></div>
+      <div class="toggle-row"><div><span>Показать эталон</span><small>Подсветка брака отдельным слоем</small></div><label class="switch"><input type="checkbox" id="reveal"><span class="track"></span></label></div>
+      <div class="button-row"><button class="btn btn-primary btn-grow" id="playPause">⏸ &nbsp; Пауза</button><button class="btn btn-grow" id="restart" title="Перезапустить конвейер">↻ &nbsp; Заново</button></div>
+    </section>
+    <section class="panel">
+      <h2>Экспорт изображений</h2><p class="panel-desc">Для экспериментов с YOLO, PatchCore или другим CV-алгоритмом</p>
+      <button class="btn btn-wide outline" id="screenshot">↓ &nbsp; Скачать текущий кадр (PNG)</button>
+      <button class="btn btn-wide btn-primary" id="batch">↓ &nbsp; Скачать 40 лотков (ZIP)</button>
+      <button class="btn btn-wide outline" id="manifest" disabled>↓ &nbsp; Эталон для серии (JSON)</button>
+      <div class="progress" id="progress"><div id="progressBar"></div></div>
+      <div class="export-status" id="exportStatus">ZIP содержит только изображения, без меток качества.</div>
+      <p class="mini-note">После предсказания можно отдельно скачать JSON и сравнить ответы модели с реальным браком.</p>
+    </section>
+    <section class="panel">
+      <h2>Виды случайного брака</h2><p class="panel-desc" style="margin-bottom:4px">В одном пустом лотке может быть сразу несколько дефектов пластика.</p>
+      <div class="defect-grid" id="defectList"></div>
+      <div class="notice">Это процедурная 2D-симуляция пустых пластиковых лотков. На ней удобно отлаживать распознавание, но для реального производства модель придётся проверять на фотографиях настоящих изделий.</div>
+    </section>
+  </aside>
+</div>
+<footer class="footer"><span>CONVEYOR.LAB · локальный эксперимент без сервера и зависимостей</span><span class="foot-code">CANVAS 2D &nbsp;/&nbsp; VANILLA JAVASCRIPT &nbsp;/&nbsp; 100% OFFLINE</span></footer>
+</div>
+<script>
+'use strict';
+(function(){
+const W=1600,H=900,TW=352,TH=316,PAD=26,SPACING=49,LANE_Y=292,SCAN=1200;
+const canvas=document.getElementById('camera'),ctx=canvas.getContext('2d',{alpha:false});
+const truth=document.getElementById('truth'),tctx=truth.getContext('2d');
+const els=Object.fromEntries(['speed','chance','severity','reveal','playPause','restart','screenshot','batch','manifest','progress','progressBar','exportStatus','total','good','bad','defectList','speedValue','chanceValue','severityValue','streamStatus','camDot'].map(id=>[id,document.getElementById(id)]));
+const DEFECTS=[
+ {id:'crack',name:'Трещина пластика'}, {id:'hole',name:'Сквозная дырка'}, {id:'underfill',name:'Недолив формы'},
+ {id:'cup_missing',name:'Отсутствует ячейка'}, {id:'cup_warp',name:'Деформация ячейки'}, {id:'rim_bent',name:'Погнутая кромка'},
+ {id:'flash',name:'Лишний пластик'}, {id:'chip',name:'Скол края'}, {id:'stain',name:'Пятна / грязь'},
+ {id:'bubbles',name:'Пузыри в пластике'}, {id:'foreign',name:'Инородное включение'},
+ {id:'cup_small',name:'Маленькая ячейка'}, {id:'cup_large',name:'Слишком большая ячейка'},
+ {id:'cup_offset',name:'Смещённая ячейка'}, {id:'wall_thin',name:'Тонкая стенка'},
+ {id:'crease',name:'Складка пластика'}, {id:'scratch',name:'Царапины'},
+ {id:'discolor',name:'Пятно цвета'}
+];
+for(const d of DEFECTS){const tag=document.createElement('span');tag.className='defect-chip';tag.textContent=d.name;els.defectList.appendChild(tag)}
+const PALETTES=[['#86bdb5','#669e96','#355f5a'],['#a9c1ae','#7d9e89','#476b5b'],['#9eb8bd','#77999f','#496a70'],['#b4b6a1','#8f957b','#5a6450'],['#b0b8ba','#858f97','#52626b']];
+let trays=[],last=0,paused=false,passed=0,good=0,bad=0,beltOffset=0,seq=0,latestBatch=null,exportBusy=false,lastFramePaint=0;
+const rnd=(a,b)=>a+Math.random()*(b-a),pick=arr=>arr[Math.floor(Math.random()*arr.length)];
+function mulberry32(a){return function(){let t=a+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return ((t^t>>>14)>>>0)/4294967296}}
+function rr(a,b,r){return a+r()*(b-a)}
+function elRange(e,txt){const p=(Number(e.value)-Number(e.min))/(Number(e.max)-Number(e.min))*100;e.style.setProperty('--fill',p+'%');if(txt)txt.textContent=e.value}
+function updateControls(){elRange(els.speed);elRange(els.chance);elRange(els.severity);els.speedValue.textContent=Number(els.speed.value).toFixed(1)+'×';els.chanceValue.textContent=els.chance.value+'%';els.severityValue.textContent=({1:'Тонкая',2:'Средняя',3:'Сильная'})[els.severity.value]}
+for(const id of ['speed','chance','severity'])els[id].addEventListener('input',updateControls);updateControls();
+function makeTray(){
+ const defective=Math.random()*100<Number(els.chance.value);
+ const pool=DEFECTS;
+ let defects=[];if(defective){const n=Math.random()<.61?1:(Math.random()<.78?2:3);const temp=[...pool];for(let i=0;i<n;i++){const idx=Math.floor(Math.random()*temp.length);defects.push({...temp.splice(idx,1)[0],cell:Math.floor(Math.random()*6),side:Math.floor(Math.random()*4)});}}
+ const t={id:++seq,seed:Math.floor(Math.random()*0xffffffff),x:0,y:LANE_Y+rnd(-8,8),angle:rnd(-.024,.024),defects,severity:Number(els.severity.value),palette:pick(PALETTES),checked:false,sprite:null};
+ t.sprite=createSprite(t);return t;
+}
+function roundRect(c,x,y,w,h,r){c.beginPath();c.roundRect(x,y,w,h,r)}
+function pathPoints(c,pts,close=true){c.beginPath();c.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)c.lineTo(pts[i][0],pts[i][1]);if(close)c.closePath()}
+function ellipse(c,x,y,rx,ry){c.beginPath();c.ellipse(x,y,rx,ry,0,0,Math.PI*2)}
+function polyPoints(cx,cy,rx,ry,n,r,rough=.25){const points=[];for(let k=0;k<n;k++){const a=k/n*Math.PI*2;const q=1+(r()-.5)*2*rough;points.push([cx+Math.cos(a)*rx*q,cy+Math.sin(a)*ry*q])}return points}
+const CENTERS=[[67,91],[176,91],[285,91],[67,225],[176,225],[285,225]];
+function drawTraySurface(c,t){
+ const r=mulberry32(t.seed),pal=t.palette;
+ c.save();c.shadowColor='#090d0d77';c.shadowBlur=8;c.shadowOffsetY=2;
+ const edge=c.createLinearGradient(0,0,TW,TH);edge.addColorStop(0,pal[0]);edge.addColorStop(.5,pal[1]);edge.addColorStop(1,pal[2]);
+ roundRect(c,4,4,TW-8,TH-8,35);c.fillStyle=edge;c.fill();c.shadowBlur=0;c.shadowOffsetY=0;
+ roundRect(c,14,13,TW-28,TH-26,27);c.strokeStyle='#edfff3a0';c.lineWidth=5;c.stroke();
+ roundRect(c,23,23,TW-46,TH-46,21);c.strokeStyle='#264c4666';c.lineWidth=5;c.stroke();
+ const face=c.createLinearGradient(0,0,0,TH);face.addColorStop(0,'#eefcf027');face.addColorStop(.5,'#ffffff03');face.addColorStop(1,'#142a2c28');roundRect(c,28,28,TW-56,TH-56,21);c.fillStyle=face;c.fill();
+ // Reinforcement ridges between molded cavities.
+ c.strokeStyle='#effff347';c.lineWidth=6;c.lineCap='round';for(const xx of [121,231]){c.beginPath();c.moveTo(xx,43);c.lineTo(xx,273);c.stroke()}c.beginPath();c.moveTo(38,157);c.lineTo(314,157);c.stroke();
+ c.strokeStyle='#183d3b40';c.lineWidth=3;for(const xx of [127,237]){c.beginPath();c.moveTo(xx,43);c.lineTo(xx,273);c.stroke()}
+ // Cavities: cup rims, slopes and a shaded concavity.
+ CENTERS.forEach(([x,y],i)=>{
+  const warped=t.defects.some(d=>d.id==='cup_warp'&&d.cell===i);
+  const missing=t.defects.some(d=>d.id==='cup_missing'&&d.cell===i);
+  if(missing)return;
+  const small=t.defects.some(d=>d.id==='cup_small'&&d.cell===i);
+  const large=t.defects.some(d=>d.id==='cup_large'&&d.cell===i);
+  const offset=t.defects.some(d=>d.id==='cup_offset'&&d.cell===i);
+  const sx=small?1-(.12*t.severity):large?1+(.08*t.severity):1;
+  const sy=small?1-(.10*t.severity):large?1+(.075*t.severity):1;
+  const wx=(warped?(t.severity===3?1.38:1.18):1)*sx;
+  const wy=(warped?(t.severity===3?.69:.81):1)*sy;
+  const shiftX=offset?(t.severity*6+5)*(i%3===2?-1:1):0;
+  const shiftY=offset?(t.severity*4+4)*(i>=3?-1:1):0;
+  c.save();c.translate(x+shiftX,y+shiftY);if(warped)c.rotate(.17*t.severity);
+  c.scale(wx,wy);
+  let g=c.createRadialGradient(-12,-14,9,0,0,70);g.addColorStop(0,'#234b4666');g.addColorStop(.54,pal[2]);g.addColorStop(.84,pal[1]);g.addColorStop(1,pal[0]);
+  ellipse(c,0,0,54,57);c.fillStyle=g;c.fill();c.strokeStyle='#e4fff0ae';c.lineWidth=5;c.stroke();
+  ellipse(c,1,1,47,49);c.strokeStyle='#173c3570';c.lineWidth=7;c.stroke();
+  g=c.createRadialGradient(10,16,1,0,0,62);g.addColorStop(0,pal[2]);g.addColorStop(.6,pal[1]);g.addColorStop(1,'#182d2a');ellipse(c,0,0,40,43);c.fillStyle=g;c.fill();c.lineWidth=2;c.strokeStyle='#c8ebe455';c.stroke();
+  c.restore();
+ });
+ // Tiny molded surface texture that isn't a defect.
+ c.fillStyle='#ffffff0c';for(let i=0;i<135;i++){const x=rr(12,TW-12,r),y=rr(12,TH-12,r);ellipse(c,x,y,rr(.3,.9,r),rr(.3,.9,r));c.fill()}
+ c.restore();
+}
+function eraseRegion(c,pts){c.save();c.globalCompositeOperation='destination-out';pathPoints(c,pts);c.fillStyle='#000';c.fill();c.restore()}
+function chipEdge(c,pts){c.save();pathPoints(c,pts,false);c.strokeStyle='#e3ffdfaa';c.lineWidth=3.5;c.lineJoin='round';c.stroke();c.strokeStyle='#294b469c';c.lineWidth=1.5;c.stroke();c.restore()}
+function drawDefects(c,t){const r=mulberry32(t.seed+13579);const level=t.severity;
+ for(const d of t.defects){const [x,y]=CENTERS[d.cell];let pts;
+ switch(d.id){
+ case 'hole': {
+  const hx=d.cell%2===0?121:231,hy=d.cell<3?157:150;pts=polyPoints(hx,hy,level*7+10,level*5+9,10,r,.42);
+  eraseRegion(c,pts);chipEdge(c,[...pts,pts[0]]);break;
+ }
+ case 'cup_missing': {
+  // An unformed, flat patch where one molded recess should be.
+  ellipse(c,x,y,48,50);c.fillStyle=t.palette[1];c.fill();c.strokeStyle='#e0fff19c';c.lineWidth=4;c.stroke();
+  ellipse(c,x,y,33,35);c.fillStyle=t.palette[0]+'aa';c.fill();c.strokeStyle='#355d5866';c.lineWidth=2;c.stroke();break;
+ }
+ case 'underfill': {
+  const left=d.side%2===0;const bx=left?3:TW-3,mid=75+(d.cell%3)*63;const dir=left?1:-1;const depth=20+level*10;
+  pts=[[bx,mid-27],[bx+dir*12,mid-19],[bx+dir*(depth-6),mid-9],[bx+dir*(depth+2),mid+3],[bx+dir*(depth-8),mid+17],[bx+dir*9,mid+21],[bx,mid+31],[bx-dir*28,mid+31],[bx-dir*28,mid-27]];
+  eraseRegion(c,pts);chipEdge(c,pts.slice(1,7));break;
+ }
+ case 'chip': {
+  const right=d.side%2===1,top=d.side<2;const bx=right?TW-2:2,by=top?3:TH-3,dx=right?-1:1,dy=top?1:-1;const s=level*9+15;
+  pts=[[bx-dx*20,by-dy*20],[bx+dx*(s*.35),by-dy*10],[bx+dx*(s*.6),by+dy*(s*.4)],[bx+dx*s,by+dy*s],[bx-dx*10,by+dy*(s*.5)]];
+  eraseRegion(c,pts);chipEdge(c,pts.slice(1,4));break;
+ }
+ case 'crack': {
+  const xx=d.side%2?TW-25:26, yy=31+(d.cell%3)*74;const p=[];for(let i=0;i<7;i++)p.push([xx+(d.side%2?-1:1)*(i*11+rr(-4,4,r)),yy+i*(r()>.5?1:-1)*5+rr(-12,12,r)]);
+  pathPoints(c,p,false);c.strokeStyle='#173a37';c.lineWidth=level===3?5:level===2?3.2:1.9;c.lineJoin='miter';c.stroke();c.save();c.translate(1.6,-1.3);pathPoints(c,p,false);c.strokeStyle='#e1fff0bd';c.lineWidth=1.3;c.stroke();c.restore();
+  const p2=[[p[3][0],p[3][1]],[p[3][0]+15,p[3][1]-20],[p[3][0]+24,p[3][1]-25]];pathPoints(c,p2,false);c.strokeStyle='#254743a0';c.lineWidth=1.6;c.stroke();break;
+ }
+ case 'cup_warp': {
+  c.beginPath();c.ellipse(x+14,y-28,34+level*4,19,.35,.2,Math.PI*1.15);c.strokeStyle='#eefce5c9';c.lineWidth=level*1.5;c.stroke();
+  c.beginPath();c.moveTo(x+36,y-17);c.quadraticCurveTo(x+12,y-41,x-4,y-49);c.lineWidth=4;c.strokeStyle='#284d4488';c.stroke();break;
+ }
+ case 'rim_bent': {
+  const by=d.side<2?16:TH-17;const bx=80+(d.cell%3)*88,sgn=d.side<2?1:-1;
+  c.beginPath();c.moveTo(bx-34,by);c.bezierCurveTo(bx-15,by+sgn*25,bx+6,by+sgn*22,bx+31,by+sgn*2);
+  c.strokeStyle='#274a4f';c.lineWidth=9;c.stroke();c.strokeStyle='#e4fbeaaf';c.lineWidth=4;c.stroke();break;
+ }
+ case 'flash': {
+  const xx=d.side%2?TW-9:9,sg=d.side%2?1:-1,mid=56+(d.cell%3)*83;
+  pts=[[xx,mid-22],[xx+sg*(15+level*7),mid-18],[xx+sg*(19+level*10),mid-5],[xx+sg*(28+level*7),mid+12],[xx,mid+22]];
+  pathPoints(c,pts);c.fillStyle=t.palette[0];c.fill();c.strokeStyle='#d8f3e0a9';c.lineWidth=2.5;c.stroke();break;
+ }
+ case 'stain': {
+  let xx=126+(d.cell%2)*100,yy=64+(d.cell>2?158:0);c.save();c.globalAlpha=.55;
+  for(let i=0;i<6+level*3;i++){const bx=xx+rr(-15,15,r),by=yy+rr(-23,23,r);ellipse(c,bx,by,rr(2,7+level*3,r),rr(2,9+level*2,r));c.fillStyle=pick(['#66482d','#514c38','#8f6844','#415448']);c.fill()}
+  c.restore();break;
+ }
+ case 'bubbles': {
+  const bx=120+(d.cell%2)*114,by=72+(d.cell>2?151:0);
+  for(let i=0;i<3+level;i++){const xx=bx+rr(-18,18,r),yy=by+rr(-20,20,r),s=rr(3,9+level*3,r);ellipse(c,xx,yy,s,s*.82);c.fillStyle='#324e4ba3';c.fill();c.strokeStyle='#d4f3d1c4';c.lineWidth=2;c.stroke();}break;
+ }
+ case 'foreign': {
+  const xx=x+29,yy=y+23;c.save();c.translate(xx,yy);c.rotate(.5);c.fillStyle='#3d3226';c.shadowColor='#0008';c.shadowBlur=5;roundRect(c,-12,-5,27+level*3,9,2);c.fill();c.shadowBlur=0;c.fillStyle='#a3a7a4';c.fillRect(-9,-2,16+level*2,2);c.restore();break;
+ }
+ case 'wall_thin': {
+  c.save();c.globalAlpha=.7;const g=c.createRadialGradient(x-7,y+12,2,x-7,y+12,30+level*5);
+  g.addColorStop(0,'#d9fff9b8');g.addColorStop(.65,'#a7e9d28c');g.addColorStop(1,'#a7e9d200');c.fillStyle=g;
+  ellipse(c,x-7,y+12,25+level*5,32+level*4);c.fill();
+  c.strokeStyle='#f1fff1aa';c.lineWidth=1.2;ellipse(c,x-7,y+12,17+level*3,24+level*3);c.stroke();c.restore();break;
+ }
+ case 'crease': {
+  const p=[[x-33,y-17],[x-13,y-29],[x+3,y-7],[x+15,y+2],[x+33,y+26]];
+  pathPoints(c,p,false);c.strokeStyle='#163e3bcc';c.lineWidth=3+level;c.lineCap='round';c.stroke();
+  c.save();c.translate(-2,-4);pathPoints(c,p,false);c.strokeStyle='#ecfff0dd';c.lineWidth=2+level*.4;c.stroke();c.restore();break;
+ }
+ case 'scratch': {
+  c.save();c.lineCap='round';for(let j=0;j<2+level;j++){
+   const dx=rr(-17,17,r),dy=rr(-16,16,r);c.beginPath();c.moveTo(x-29+dx,y-13+dy);c.lineTo(x+8+dx,y+22+dy);
+   c.strokeStyle='#183b35b5';c.lineWidth=1.3;c.stroke();c.save();c.translate(1,-1);c.strokeStyle='#e5fff0b9';c.lineWidth=.9;c.stroke();c.restore();
+  }c.restore();break;
+ }
+ case 'discolor': {
+  c.save();c.globalAlpha=.4+.12*level;const g=c.createRadialGradient(x+9,y-6,2,x+9,y-6,37+level*7);
+  g.addColorStop(0,'#e0b687');g.addColorStop(.55,'#ccab83ab');g.addColorStop(1,'#e5c6a500');c.fillStyle=g;
+  ellipse(c,x+9,y-6,37+level*7,29+level*7);c.fill();c.restore();break;
+ }
+ default:break;
+ }
+ }
+}
+function createSprite(t){
+ const c=document.createElement('canvas');c.width=(TW+PAD*2)*2;c.height=(TH+PAD*2)*2;const s=c.getContext('2d');s.scale(2,2);s.translate(PAD,PAD);
+ drawTraySurface(s,t);drawDefects(s,t);return c;
+}
+function drawBackground(c,offset){
+ c.fillStyle='#0c171b';c.fillRect(0,0,W,H);
+ // Factory floor above and below the belt.
+ for(let y=0;y<H;y+=55){c.fillStyle=y%110===0?'#142328':'#102025';c.fillRect(0,y,W,2)}
+ for(let x=0;x<W;x+=118){c.fillStyle='#ffffff07';c.fillRect(x,0,1,H)}
+ const belt=c.createLinearGradient(0,134,0,759);belt.addColorStop(0,'#18292e');belt.addColorStop(.13,'#25383b');belt.addColorStop(.52,'#223237');belt.addColorStop(.86,'#243338');belt.addColorStop(1,'#101c20');c.fillStyle=belt;c.fillRect(0,149,W,609);
+ c.save();c.beginPath();c.rect(0,150,W,606);c.clip();
+ // Moving machined rubber ribs.
+ for(let x=((offset%47)+47)%47-47;x<W+47;x+=47){c.fillStyle='#9bb1ae0c';c.fillRect(x,151,3,603);c.fillStyle='#00000010';c.fillRect(x+9,151,3,603);c.beginPath();c.moveTo(x+13,151);c.lineTo(x+31,758);c.strokeStyle='#7caca00a';c.lineWidth=1;c.stroke()}
+ for(let y=191;y<745;y+=74){c.fillStyle='#ffffff08';c.fillRect(0,y,W,1);c.fillStyle='#00000017';c.fillRect(0,y+3,W,3)}
+ // Metallic bolt rows along the belt sides.
+ for(let x=((offset*.45)%105+105)%105-105;x<W+105;x+=105){
+   for(const y of [177,733]){ellipse(c,x,y,5,4);c.fillStyle='#0a181a';c.fill();ellipse(c,x-1,y-1,2,2);c.fillStyle='#5a7779';c.fill()}
+ }
+ c.restore();
+ for(const [y,sign] of [[130,1],[751,-1]]){
+   c.fillStyle='#0a1115';c.fillRect(0,y-9,W,27);
+   let metal=c.createLinearGradient(0,y-7,0,y+18);metal.addColorStop(0,'#324750');metal.addColorStop(.3,'#81959c');metal.addColorStop(.56,'#3b555e');metal.addColorStop(1,'#1c3039');c.fillStyle=metal;c.fillRect(0,y-5,W,19);
+   c.fillStyle='#b6d5d3a3';c.fillRect(0,y-4,W,2);
+   for(let x=35;x<W;x+=164){ellipse(c,x,y+4,4,4);c.fillStyle='#19292b';c.fill();ellipse(c,x-1,y+2,1.5,1.5);c.fillStyle='#bccfcb';c.fill()}
+ }
+ const light=c.createRadialGradient(750,345,140,750,380,1100);light.addColorStop(0,'#c6ffe10c');light.addColorStop(1,'#00000044');c.fillStyle=light;c.fillRect(0,0,W,H);
+ // Inspection point. This line is scenery, not a defect detection result.
+ c.fillStyle='#7ce8b611';c.fillRect(SCAN-13,159,26,581);c.fillStyle='#96ffd560';c.fillRect(SCAN-1,155,2,592);
+ c.fillStyle='#d8fff0aa';c.font='700 16px ui-monospace,monospace';c.fillText('QC / 01',SCAN+20,201);
+}
+function paintTrays(c,list){for(const t of list){
+ c.save();c.translate(t.x+TW/2,t.y+TH/2);c.rotate(t.angle);c.translate(-TW/2,-TH/2);
+ c.shadowColor='#00000099';c.shadowBlur=29;c.shadowOffsetY=15;roundRect(c,8,8,TW-16,TH-14,28);c.fillStyle='#13221b9a';c.fill();c.shadowBlur=0;c.shadowOffsetY=0;
+ c.drawImage(t.sprite,-PAD,-PAD,TW+PAD*2,TH+PAD*2);c.restore();
+}}
+function render(){drawBackground(ctx,beltOffset);paintTrays(ctx,trays);
+ tctx.clearRect(0,0,W,H);
+ if(els.reveal.checked){for(const t of trays){const defective=t.defects.length>0;const x=t.x-5,y=t.y-5;const color=defective?'#ff9784':'#86f4bd';tctx.strokeStyle=color;tctx.lineWidth=3;tctx.setLineDash([13,8]);tctx.strokeRect(x,y,TW+10,TH+10);tctx.setLineDash([]);
+  const label=defective?'БРАК · '+t.defects.map(d=>d.name).slice(0,2).join(', '):'НОРМА';tctx.font='bold 17px system-ui';const boxW=Math.min(TW+50,tctx.measureText(label).width+26);tctx.fillStyle=defective?'#ad4439ed':'#247355ed';tctx.beginPath();tctx.roundRect(x,y-37,boxW,32,7);tctx.fill();tctx.fillStyle='#fff';tctx.fillText(label,x+12,y-14,boxW-16);
+ }}
+}
+function update(dt){const delta=175*Number(els.speed.value)*dt;beltOffset+=delta;
+ for(const t of trays){const prev=t.x;t.x+=delta;if(!t.checked&&prev+TW/2<SCAN&&t.x+TW/2>=SCAN){t.checked=true;passed++;if(t.defects.length)bad++;else good++;}}
+ trays=trays.filter(t=>t.x<W+100);
+ let left=trays.length?Math.min(...trays.map(t=>t.x)):W;
+ while(left>-TW-SPACING){const t=makeTray();t.x=left-(TW+SPACING);trays.push(t);left=t.x}
+ els.total.textContent=passed.toLocaleString('ru-RU');els.good.textContent=good.toLocaleString('ru-RU');els.bad.textContent=bad.toLocaleString('ru-RU');
+}
+function setup(){trays=[];passed=good=bad=0;beltOffset=0;const initial=[-285,116,517,918,1319];for(const x of initial){const t=makeTray();t.x=x;trays.push(t)}render();els.total.textContent='0';els.good.textContent='0';els.bad.textContent='0'}
+function animate(t){const dt=Math.min((t-last)/1000,.075)||0;last=t;if(!exportBusy){if(!paused)update(dt);if(t-lastFramePaint>=33){render();lastFramePaint=t}}requestAnimationFrame(animate)}
+function togglePause(){paused=!paused;els.playPause.innerHTML=paused?'▶ &nbsp; Продолжить':'⏸ &nbsp; Пауза';els.camDot.style.animationPlayState=paused?'paused':'running';els.streamStatus.textContent=paused?'CAM-01  |  PAUSED  |  NO ANNOTATIONS':'CAM-01  |  TOP VIEW  |  NO ANNOTATIONS'}
+els.playPause.addEventListener('click',togglePause);
+els.restart.addEventListener('click',()=>{setup()});
+function downloadBlob(blob,name){const a=document.createElement('a');const url=URL.createObjectURL(blob);a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),18000)}
+const toBlob=(c,type='image/png')=>new Promise((resolve,reject)=>c.toBlob(b=>b?resolve(b):reject(new Error('Невозможно создать изображение')),type));
+els.screenshot.addEventListener('click',async()=>{try{const blob=await toBlob(canvas);downloadBlob(blob,'conveyor_frame_'+Date.now()+'.png');els.exportStatus.textContent='Кадр сохранён без меток и подсветки.'}catch(err){els.exportStatus.textContent='Ошибка снимка: '+err.message}});
+// Small ZIP writer: plain uncompressed entries. PNG itself is already compressed.
+const CRC_TABLE=(()=>{const table=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xedb88320^(c>>>1):c>>>1;table[n]=c>>>0}return table})();
+function crc32(bytes){let c=0xffffffff;for(const b of bytes)c=CRC_TABLE[(c^b)&255]^(c>>>8);return(c^0xffffffff)>>>0}
+function makeZip(entries){const enc=new TextEncoder();const parts=[],central=[];let offset=0;
+ for(const {name,bytes} of entries){const fn=enc.encode(name),size=bytes.length,crc=crc32(bytes);const lh=new Uint8Array(30+fn.length),lv=new DataView(lh.buffer);
+  lv.setUint32(0,0x04034b50,true);lv.setUint16(4,20,true);lv.setUint16(6,0,true);lv.setUint16(8,0,true);lv.setUint32(14,crc,true);lv.setUint32(18,size,true);lv.setUint32(22,size,true);lv.setUint16(26,fn.length,true);lh.set(fn,30);parts.push(lh,bytes);
+  const ch=new Uint8Array(46+fn.length),cv=new DataView(ch.buffer);cv.setUint32(0,0x02014b50,true);cv.setUint16(4,20,true);cv.setUint16(6,20,true);cv.setUint32(16,crc,true);cv.setUint32(20,size,true);cv.setUint32(24,size,true);cv.setUint16(28,fn.length,true);cv.setUint32(42,offset,true);ch.set(fn,46);central.push(ch);offset+=lh.length+size;
+ }
+ const cs=central.reduce((a,b)=>a+b.length,0);const end=new Uint8Array(22),ev=new DataView(end.buffer);ev.setUint32(0,0x06054b50,true);ev.setUint16(8,entries.length,true);ev.setUint16(10,entries.length,true);ev.setUint32(12,cs,true);ev.setUint32(16,offset,true);return new Blob([...parts,...central,end],{type:'application/zip'});
+}
+function offlineSample(t){const c=document.createElement('canvas');c.width=720;c.height=650;const s=c.getContext('2d');s.fillStyle='#243338';s.fillRect(0,0,720,650);
+ const r=mulberry32(t.seed+87);for(let x=0;x<720;x+=34){s.fillStyle='#ffffff08';s.fillRect(x,0,2,650)}for(let y=0;y<650;y+=81){s.fillStyle='#0000000e';s.fillRect(0,y,720,2)}
+ const scale=1.61,px=80+rr(-4,4,r),py=70+rr(-5,5,r);s.save();s.translate(px+TW*scale/2,py+TH*scale/2);s.rotate(t.angle);s.scale(scale,scale);s.translate(-TW/2,-TH/2);
+ s.shadowColor='#0009';s.shadowBlur=20;s.shadowOffsetY=12;roundRect(s,8,9,TW-16,TH-18,27);s.fillStyle='#10201b';s.fill();s.shadowBlur=0;s.shadowOffsetY=0;s.drawImage(t.sprite,-PAD,-PAD,TW+PAD*2,TH+PAD*2);s.restore();
+ // Very slight lighting variation per image.
+ let g=s.createLinearGradient(0,0,720,650);g.addColorStop(0,'#ffffff0b');g.addColorStop(1,'#00000016');s.fillStyle=g;s.fillRect(0,0,720,650);return c;
+}
+els.batch.addEventListener('click',async()=>{if(exportBusy)return;exportBusy=true;els.batch.disabled=true;els.screenshot.disabled=true;els.progress.classList.add('active');els.progressBar.style.width='0%';els.exportStatus.textContent='Генерация изображений: 0 / 40';
+ try{
+  const entries=[],manifest={info:'Синтетический эталон. Не подавать как вход модели во время слепого теста.',generated_at:new Date().toISOString(),images:[]};
+  for(let i=0;i<40;i++){
+   const t=makeTray(),name='sample_'+String(i+1).padStart(4,'0')+'.png',im=offlineSample(t),blob=await toBlob(im);
+   entries.push({name,bytes:new Uint8Array(await blob.arrayBuffer())});manifest.images.push({file:name,defect:t.defects.length>0,defects:t.defects.map(d=>d.id),defect_names:t.defects.map(d=>d.name)});
+   els.progressBar.style.width=((i+1)/40*100)+'%';els.exportStatus.textContent='Генерация изображений: '+(i+1)+' / 40';
+   if(i%4===0)await new Promise(resolve=>requestAnimationFrame(resolve));
+  }
+  const zip=makeZip(entries);latestBatch=manifest;els.manifest.disabled=false;downloadBlob(zip,'conveyor_blind_40.zip');els.exportStatus.textContent='Готово: 40 PNG без меток. Эталон можно сохранить отдельно.';
+ }catch(err){els.exportStatus.textContent='Ошибка экспорта: '+err.message;console.error(err)}finally{exportBusy=false;els.batch.disabled=false;els.screenshot.disabled=false;setTimeout(()=>els.progress.classList.remove('active'),900)}
+});
+els.manifest.addEventListener('click',()=>{if(!latestBatch)return;downloadBlob(new Blob([JSON.stringify(latestBatch,null,2)],{type:'application/json;charset=utf-8'}),'conveyor_truth.json');els.exportStatus.textContent='Эталон сохранён отдельно от изображений.'});
+// Public API for future experiments: pixels only. Ground-truth intentionally isn't part of it.
+window.conveyorLab=Object.freeze({getCanvas:()=>canvas,getStream:(fps=30)=>canvas.captureStream(fps),getFrame:()=>new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error('Ошибка')), 'image/png')),pause:()=>{if(!paused)togglePause()},resume:()=>{if(paused)togglePause()}});
+setup();requestAnimationFrame(animate);
+})();
+</script>
+</body>
+</html>
